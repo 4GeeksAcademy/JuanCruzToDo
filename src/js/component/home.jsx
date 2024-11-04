@@ -22,7 +22,7 @@ const Home = () => {
             setListaTareas(nuevasTareas);
             setEditarTarea(null);
         } else {
-            // Agregar nueva tarea y marcarla como guardada (icono de candado abierto)
+            // Agregar nueva tarea y marcarla como guardada!
             setListaTareas([...listaTareas, tareas]);
             setTareasGuardadas([...tareasGuardadas, true]); // Añadir estado de guardado
         }
