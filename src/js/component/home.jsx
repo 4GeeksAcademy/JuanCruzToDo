@@ -1,44 +1,41 @@
-import { useState, useEffect } from "react";
-import React  from "react";
+import { useState } from "react";
+import React from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencil } from '@fortawesome/free-solid-svg-icons';
+import { faPencil, faLock, faLockOpen } from "@fortawesome/free-solid-svg-icons";
 
-
-//include images into your bundle
-import rigoImage from "../../img/rigo-baby.jpg";
-
-//create your first component
 const Home = () => {
     const [tareas, setTareas] = useState("");
     const [listaTareas, setListaTareas] = useState([]);
     const [editarTarea, setEditarTarea] = useState(null);
+    const [tareasGuardadas, setTareasGuardadas] = useState([]); // Estado para tareas guardadas
 
     const agregarTarea = () => {
-        // Validar si la tarea no está vacía
         if (tareas.trim() === "") {
             alert("No se puede ingresar una tarea vacía");
             return;
         }
 
         if (editarTarea !== null) {
-            // Actualiza la tarea existente
             const nuevasTareas = listaTareas.map((tarea, index) => 
                 index === editarTarea ? tareas : tarea
             );
             setListaTareas(nuevasTareas);
-            setEditarTarea(null); // Reinicia el estado de edición
+            setEditarTarea(null);
         } else {
-            // Agregar una nueva tarea
+            // Agregar nueva tarea y marcarla como guardada (icono de candado abierto)
             setListaTareas([...listaTareas, tareas]);
+            setTareasGuardadas([...tareasGuardadas, true]); // Añadir estado de guardado
         }
 
-        setTareas(""); // Limpia el input después de agregar
+        setTareas("");
     };
 
     const eliminarTarea = (index) => {
         const nuevasTareas = listaTareas.filter((_, i) => i !== index);
+        const nuevasTareasGuardadas = tareasGuardadas.filter((_, i) => i !== index); // Eliminar estado guardado
         setListaTareas(nuevasTareas);
-        // Reiniciar la edición si se elimina la tarea editada
+        setTareasGuardadas(nuevasTareasGuardadas);
+        
         if (editarTarea === index) {
             setEditarTarea(null);
             setTareas("");
@@ -46,8 +43,8 @@ const Home = () => {
     };
 
     const iniciarEdicion = (index) => {
-        setEditarTarea(index); // Establece el índice de la tarea a editar
-        setTareas(listaTareas[index]); // Prellena el campo de texto con la tarea
+        setEditarTarea(index);
+        setTareas(listaTareas[index]);
     };
 
     const pressEnter = (e) => {
@@ -56,61 +53,61 @@ const Home = () => {
         }
     };
 
-	
+    const toggleGuardarTarea = (index) => {
+        const nuevasTareasGuardadas = tareasGuardadas.map((guardada, i) => 
+            i === index ? !guardada : guardada
+        );
+        setTareasGuardadas(nuevasTareasGuardadas);
+    };
 
+    return (
+        <>
+            <h1>Tareas Pendientes</h1>
 
+            <div className="input-group mb-3" id="group">
+                <input type="text" className="form-control" 
+                    placeholder="Ingrese tarea" 
+                    id="inputG"
+                    value={tareas}
+                    onChange={(e) => setTareas(e.target.value)}
+                    onKeyPress={pressEnter}
+                />
+                <button className="btn btn-outline-secondary" 
+                    type="button" 
+                    id="button-addon2"
+                    onClick={agregarTarea}
+                >Add</button>
+            </div>
 
-
-	
-
-
-	
-	return (
-		<>
-
-		<h1>Tareas Pendientes</h1>
-
-		<div className="input-group mb-3" id="group">
- 		 <input type="text" className="form-control" 
-		 placeholder="Ingrese tarea" aria-label="Recipient's username" 
-		 aria-describedby="button-addon2" 
-		 id="inputG"
-		 value={tareas}
-		 onChange={(e) => setTareas (e.target.value)}
-		 onKeyPress={pressEnter}
-		 />
-  		 
-		 
-		 <button className="btn btn-outline-secondary" 
-		 type="button" 
-		 id="button-addon2"
-		 onClick={agregarTarea}
-		 >Add</button>
-		
-		
-		</div>
-
-		<div className="container">
-			<ul className="list-group">
-				{listaTareas.length === 0 ? ( <li className="list-group-item" style={{color: "#ec7744"}}>No hay tareas pendientes</li>) : (
-
-				listaTareas.map((tarea , index)=> 
-					
-  				<li className="list-group-item" key={index} id="input">{tarea}
-
-				<FontAwesomeIcon icon={faPencil} style={{ marginRight: '10px', color: "#ec7744", cursor: "pointer" }} onClick={() => iniciarEdicion(index)} />
-				
-					<span style={{ cursor: "pointer", marginLeft: "10px", color: "#ec7744" }} 
-            		onClick={() => eliminarTarea(index)} id="span">
-                        X
-						</span>
-  </li>
-  )
-)}
-	</ul>
-		</div>
-		</>
-	);
+            <div className="container">
+                <ul className="list-group">
+                    {listaTareas.length === 0 ? (
+                        <li className="list-group-item" style={{ color: "#ec7744" }}>No hay tareas pendientes</li>
+                    ) : (
+                        listaTareas.map((tarea, index) => 
+                            <li className="list-group-item" key={index} id="input">
+                                {tarea}
+                                <FontAwesomeIcon 
+                                    icon={faPencil} 
+                                    style={{ marginRight: '10px', color: "#ec7744", cursor: "pointer" }} 
+                                    onClick={() => iniciarEdicion(index)} 
+                                />
+                                <FontAwesomeIcon 
+                                    icon={tareasGuardadas[index] ? faLockOpen : faLock} 
+                                    style={{ marginLeft: '10px', color: "#ec7744", cursor: "pointer" }} 
+                                    onClick={() => toggleGuardarTarea(index)} 
+                                />
+                                <span style={{ cursor: "pointer", marginLeft: "10px", color: "#ec7744" }} 
+                                    onClick={() => eliminarTarea(index)} id="span">
+                                    X
+                                </span>
+                            </li>
+                        )
+                    )}
+                </ul>
+            </div>
+        </>
+    );
 };
 
 export default Home;
